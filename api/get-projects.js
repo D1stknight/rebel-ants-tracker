@@ -9,7 +9,16 @@ export default async function handler(req) {
   });
 
   const data = await res.json();
-  const projects = data.result ? JSON.parse(data.result) : null;
+
+  let projects = null;
+  if (data.result) {
+    try {
+      const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+      projects = Array.isArray(parsed) ? parsed : JSON.parse(parsed);
+    } catch(e) {
+      projects = null;
+    }
+  }
 
   return new Response(JSON.stringify({ projects }), {
     headers: {
