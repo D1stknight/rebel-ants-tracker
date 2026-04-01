@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rebel Ants — Project Tracker</title>
-<!-- Open Graph / Link Preview -->
 <meta property="og:title" content="Rebel Ants — Project Tracker" />
 <meta property="og:description" content="Track all active Rebel Ants projects in real time." />
 <meta property="og:image" content="https://tracker.rebelants.io/og-image.png" />
@@ -28,9 +27,7 @@
     --glow-cyan: 0 0 8px #00f5ff, 0 0 20px #00f5ff55, 0 0 40px #00f5ff22;
     --glow-pink: 0 0 8px #ff0090, 0 0 20px #ff009055;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: var(--bg);
     color: var(--text);
@@ -38,8 +35,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* Animated grid background */
   body::before {
     content: '';
     position: fixed;
@@ -51,23 +46,17 @@
     pointer-events: none;
     z-index: 0;
   }
-
-  /* Scanline overlay */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
     background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.07) 2px,
-      rgba(0,0,0,0.07) 4px
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
     );
     pointer-events: none;
     z-index: 1;
   }
-
   .container {
     position: relative;
     z-index: 2;
@@ -75,31 +64,17 @@
     margin: 0 auto;
     padding: 40px 24px 80px;
   }
-
-  /* ── HEADER ── */
-  header {
-    text-align: center;
-    margin-bottom: 56px;
-  }
-
-  .logo-wrap {
-    display: inline-block;
-    position: relative;
-    margin-bottom: 8px;
-  }
-
-  .logo-wrap .ant-icon {
+  header { text-align: center; margin-bottom: 56px; }
+  .ant-icon {
     font-size: 52px;
     display: block;
     filter: drop-shadow(0 0 12px var(--neon-cyan));
     animation: float 3s ease-in-out infinite;
   }
-
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
   }
-
   h1 {
     font-family: 'Orbitron', monospace;
     font-size: clamp(28px, 6vw, 52px);
@@ -113,7 +88,6 @@
     filter: drop-shadow(0 0 20px rgba(0,245,255,0.4));
     line-height: 1.1;
   }
-
   .subtitle {
     font-family: 'Orbitron', monospace;
     font-size: 11px;
@@ -122,7 +96,6 @@
     text-transform: uppercase;
     margin-top: 10px;
   }
-
   .header-line {
     width: 200px;
     height: 1px;
@@ -130,13 +103,10 @@
     margin: 20px auto 0;
     animation: linePulse 3s ease-in-out infinite;
   }
-
   @keyframes linePulse {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
   }
-
-  /* ── STATS BAR ── */
   .stats-row {
     display: flex;
     gap: 16px;
@@ -144,7 +114,6 @@
     flex-wrap: wrap;
     justify-content: center;
   }
-
   .stat-chip {
     background: var(--card);
     border: 1px solid var(--border);
@@ -154,7 +123,6 @@
     flex: 1;
     min-width: 120px;
   }
-
   .stat-chip .val {
     font-family: 'Orbitron', monospace;
     font-size: 22px;
@@ -162,7 +130,6 @@
     color: var(--neon-cyan);
     text-shadow: var(--glow-cyan);
   }
-
   .stat-chip .lbl {
     font-size: 10px;
     letter-spacing: 2px;
@@ -170,14 +137,7 @@
     text-transform: uppercase;
     margin-top: 2px;
   }
-
-  /* ── PROJECT CARDS ── */
-  #projects-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
+  #projects-list { display: flex; flex-direction: column; gap: 14px; }
   .project-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -188,13 +148,7 @@
     transition: border-color 0.3s, transform 0.2s;
     animation: cardIn 0.5s ease both;
   }
-
-  .project-card:hover {
-    transform: translateX(4px);
-    border-color: rgba(0,245,255,0.3);
-  }
-
-  /* Left accent bar */
+  .project-card:hover { transform: translateX(4px); border-color: rgba(0,245,255,0.3); }
   .project-card::before {
     content: '';
     position: absolute;
@@ -203,34 +157,18 @@
     background: var(--accent-color, var(--neon-cyan));
     box-shadow: 0 0 8px var(--accent-color, var(--neon-cyan));
   }
-
   @keyframes cardIn {
     from { opacity: 0; transform: translateX(-20px); }
     to   { opacity: 1; transform: translateX(0); }
   }
-
   .card-top {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 12px;
   }
-
-  .card-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    min-width: 24px;
-  }
-
-  .card-name {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    flex: 1;
-    color: #e0eeff;
-  }
-
+  .card-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text-dim); min-width: 24px; }
+  .card-name { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; flex: 1; color: #e0eeff; }
   .card-pct {
     font-family: 'Orbitron', monospace;
     font-size: 18px;
@@ -240,16 +178,12 @@
     min-width: 56px;
     text-align: right;
   }
-
-  /* Progress bar track */
   .bar-track {
     height: 8px;
     background: rgba(255,255,255,0.05);
     border-radius: 99px;
     overflow: hidden;
-    position: relative;
   }
-
   .bar-fill {
     height: 100%;
     border-radius: 99px;
@@ -259,8 +193,6 @@
     position: relative;
     overflow: hidden;
   }
-
-  /* Shimmer sweep */
   .bar-fill::after {
     content: '';
     position: absolute;
@@ -270,22 +202,15 @@
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
     animation: shimmer 2.5s ease-in-out infinite;
   }
-
   @keyframes shimmer {
     0% { left: -60%; }
     100% { left: 150%; }
   }
-
-  /* Special pulse for 100% */
-  .project-card.complete .bar-fill {
-    animation: completePulse 2s ease-in-out infinite;
-  }
-
+  .project-card.complete .bar-fill { animation: completePulse 2s ease-in-out infinite; }
   @keyframes completePulse {
     0%, 100% { box-shadow: 0 0 8px var(--neon-green); }
     50% { box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green); }
   }
-
   .complete-badge {
     display: none;
     font-family: 'Orbitron', monospace;
@@ -296,13 +221,24 @@
     margin-left: 8px;
   }
   .project-card.complete .complete-badge { display: inline; }
-
-  /* ── ADMIN BUTTON ── */
-  .admin-toggle-wrap {
+  .loading-wrap {
     text-align: center;
-    margin-top: 56px;
+    padding: 60px 0;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
   }
-
+  .loading-wrap .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--neon-cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .admin-toggle-wrap { text-align: center; margin-top: 56px; }
   .admin-toggle-btn {
     background: transparent;
     border: 1px solid var(--text-dim);
@@ -316,22 +252,14 @@
     cursor: pointer;
     transition: all 0.3s;
   }
-
   .admin-toggle-btn:hover {
     border-color: var(--neon-cyan);
     color: var(--neon-cyan);
     text-shadow: var(--glow-cyan);
     box-shadow: 0 0 12px rgba(0,245,255,0.15);
   }
-
-  /* ── ADMIN PANEL ── */
-  #admin-section {
-    display: none;
-    margin-top: 20px;
-  }
-
+  #admin-section { display: none; margin-top: 20px; }
   #admin-section.visible { display: block; }
-
   .admin-panel {
     background: var(--surface);
     border: 1px solid var(--neon-pink);
@@ -339,7 +267,6 @@
     padding: 28px;
     box-shadow: 0 0 30px rgba(255,0,144,0.1);
   }
-
   .admin-header {
     font-family: 'Orbitron', monospace;
     font-size: 13px;
@@ -348,12 +275,7 @@
     text-shadow: var(--glow-pink);
     text-transform: uppercase;
     margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
   }
-
-  /* Login form */
   #login-form {
     display: flex;
     flex-direction: column;
@@ -361,7 +283,6 @@
     max-width: 320px;
     margin: 0 auto;
   }
-
   #login-form input {
     background: var(--card);
     border: 1px solid var(--border);
@@ -374,9 +295,7 @@
     transition: border-color 0.3s;
     width: 100%;
   }
-
   #login-form input:focus { border-color: var(--neon-pink); }
-
   .btn-primary {
     background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
     border: none;
@@ -391,30 +310,11 @@
     transition: all 0.3s;
     box-shadow: 0 0 16px rgba(255,0,144,0.3);
   }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0 24px rgba(255,0,144,0.5);
-  }
-
-  .login-error {
-    color: var(--neon-orange);
-    font-size: 12px;
-    text-align: center;
-    display: none;
-  }
-
-  /* Admin content (post-login) */
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(255,0,144,0.5); }
+  .login-error { color: var(--neon-orange); font-size: 12px; text-align: center; display: none; }
   #admin-content { display: none; }
   #admin-content.visible { display: block; }
-
-  .admin-toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
+  .admin-toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .btn-add {
     background: transparent;
     border: 1px solid var(--neon-green);
@@ -428,12 +328,7 @@
     transition: all 0.3s;
     text-transform: uppercase;
   }
-
-  .btn-add:hover {
-    background: rgba(57,255,20,0.1);
-    box-shadow: 0 0 12px rgba(57,255,20,0.2);
-  }
-
+  .btn-add:hover { background: rgba(57,255,20,0.1); box-shadow: 0 0 12px rgba(57,255,20,0.2); }
   .btn-save {
     background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
     border: none;
@@ -448,9 +343,8 @@
     transition: all 0.3s;
     text-transform: uppercase;
   }
-
   .btn-save:hover { filter: brightness(1.2); box-shadow: 0 0 16px rgba(0,245,255,0.3); }
-
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-logout {
     background: transparent;
     border: 1px solid var(--text-dim);
@@ -465,12 +359,8 @@
     text-transform: uppercase;
     margin-left: auto;
   }
-
   .btn-logout:hover { border-color: var(--neon-orange); color: var(--neon-orange); }
-
-  /* Admin rows */
   .admin-rows { display: flex; flex-direction: column; gap: 10px; }
-
   .admin-row {
     display: flex;
     align-items: center;
@@ -481,21 +371,7 @@
     padding: 10px 14px;
     animation: cardIn 0.3s ease both;
   }
-
-  .admin-row .drag-handle {
-    color: var(--text-dim);
-    cursor: grab;
-    font-size: 16px;
-    user-select: none;
-  }
-
-  .admin-row .row-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    min-width: 20px;
-  }
-
+  .admin-row .row-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text-dim); min-width: 20px; }
   .admin-row input[type="text"] {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -509,9 +385,7 @@
     transition: border-color 0.2s;
     min-width: 0;
   }
-
   .admin-row input[type="text"]:focus { border-color: var(--neon-cyan); }
-
   .admin-row input[type="number"] {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -527,16 +401,9 @@
     transition: border-color 0.2s;
     -moz-appearance: textfield;
   }
-
   .admin-row input[type="number"]:focus { border-color: var(--neon-cyan); }
   .admin-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  .pct-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
+  .pct-label { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--text-dim); }
   .btn-delete {
     background: transparent;
     border: 1px solid rgba(255,0,144,0.3);
@@ -548,13 +415,7 @@
     transition: all 0.2s;
     line-height: 1;
   }
-
-  .btn-delete:hover {
-    border-color: var(--neon-pink);
-    color: var(--neon-pink);
-    background: rgba(255,0,144,0.08);
-  }
-
+  .btn-delete:hover { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255,0,144,0.08); }
   .save-toast {
     position: fixed;
     bottom: 30px;
@@ -572,47 +433,30 @@
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 999;
   }
-
   .save-toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    .admin-row { flex-wrap: wrap; }
-    .admin-row input[type="text"] { min-width: calc(100% - 120px); }
-  }
 </style>
 </head>
 <body>
-
 <div class="container">
-
-  <!-- HEADER -->
   <header>
-    <div class="logo-wrap">
-      <span class="ant-icon">🐜</span>
-    </div>
+    <span class="ant-icon">🐜</span>
     <h1>Rebel Ants</h1>
     <p class="subtitle">Project Status Tracker</p>
     <div class="header-line"></div>
   </header>
-
-  <!-- STATS -->
   <div class="stats-row" id="stats-row"></div>
-
-  <!-- PROJECT LIST -->
-  <div id="projects-list"></div>
-
-  <!-- ADMIN TOGGLE -->
+  <div id="projects-list">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      LOADING PROJECTS...
+    </div>
+  </div>
   <div class="admin-toggle-wrap">
     <button class="admin-toggle-btn" onclick="toggleAdmin()">⚙ Admin Access</button>
   </div>
-
-  <!-- ADMIN SECTION -->
   <div id="admin-section">
     <div class="admin-panel">
       <div class="admin-header">🔐 Admin Panel</div>
-
-      <!-- Login -->
       <div id="login-form-wrap">
         <div id="login-form">
           <input type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
@@ -620,36 +464,30 @@
           <p class="login-error" id="login-error">❌ Incorrect password</p>
         </div>
       </div>
-
-      <!-- Admin Content -->
       <div id="admin-content">
         <div class="admin-toolbar">
           <button class="btn-add" onclick="addProject()">+ Add Project</button>
-          <button class="btn-save" onclick="saveAll()">💾 Save Changes</button>
+          <button class="btn-save" id="save-btn" onclick="saveAll()">💾 Save Changes</button>
           <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
         <div class="admin-rows" id="admin-rows"></div>
       </div>
     </div>
   </div>
-
 </div>
-
-<!-- Toast -->
 <div class="save-toast" id="toast">Changes Saved!</div>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
 const DEFAULT_PROJECTS = [
-  { id: 1, name: "Arcade Games 1–4 Possibly More – Shuffle", pct: 80 },
-  { id: 2, name: "Comic Book", pct: 70 },
-  { id: 3, name: "Financial App", pct: 2 },
-  { id: 4, name: "3D App (Patent Acquired)", pct: 70 },
-  { id: 5, name: "Trait Builder", pct: 100 },
-  { id: 6, name: "Real Life Card Game", pct: 10 },
-  { id: 7, name: "V3 Collection", pct: 50 },
-  { id: 8, name: "V2 Alpha Swarm Collection", pct: 80 },
-  { id: 9, name: "Animation", pct: 50 },
+  { id: 1,  name: "Arcade Games 1–4 Possibly More – Shuffle", pct: 80 },
+  { id: 2,  name: "Comic Book", pct: 70 },
+  { id: 3,  name: "Financial App", pct: 2 },
+  { id: 4,  name: "3D App (Patent Acquired)", pct: 70 },
+  { id: 5,  name: "Trait Builder", pct: 100 },
+  { id: 6,  name: "Real Life Card Game", pct: 10 },
+  { id: 7,  name: "V3 Collection", pct: 50 },
+  { id: 8,  name: "V2 Alpha Swarm Collection", pct: 80 },
+  { id: 9,  name: "Animation", pct: 50 },
   { id: 10, name: "V2 Image Hosting In House", pct: 65 },
   { id: 11, name: "Strategy Token (Built In House)", pct: 1 },
   { id: 12, name: "Giphi Chibby Ants", pct: 78 },
@@ -657,8 +495,7 @@ const DEFAULT_PROJECTS = [
   { id: 14, name: "Rebel Virtual World", pct: 1 }
 ];
 
-const ADMIN_PASSWORD = "Mc#03048215891600";
-
+const ADMIN_PASSWORD = "rebelants2024";
 const PALETTES = [
   { start: "#00f5ff", end: "#bf00ff", accent: "#00f5ff" },
   { start: "#ff0090", end: "#ff6b00", accent: "#ff0090" },
@@ -670,47 +507,68 @@ const PALETTES = [
   { start: "#ff0090", end: "#bf00ff", accent: "#ff0090" },
 ];
 
-function getPalette(i) { return PALETTES[i % PALETTES.length]; }
-
-function loadProjects() {
-  try {
-    const saved = localStorage.getItem("rebelants_projects");
-    return saved ? JSON.parse(saved) : DEFAULT_PROJECTS;
-  } catch { return DEFAULT_PROJECTS; }
-}
-
-function saveProjects(projects) {
-  localStorage.setItem("rebelants_projects", JSON.stringify(projects));
-}
-
-let projects = loadProjects();
-let nextId = Math.max(...projects.map(p => p.id), 0) + 1;
+let projects = [];
+let nextId = 100;
 let loggedIn = false;
 
-// ─── RENDER PUBLIC VIEW ───────────────────────────────────────────────────
+async function loadProjects() {
+  try {
+    const res = await fetch('/api/get-projects');
+    const data = await res.json();
+    if (data.projects && data.projects.length > 0) {
+      projects = data.projects;
+    } else {
+      projects = DEFAULT_PROJECTS;
+    }
+  } catch (e) {
+    projects = DEFAULT_PROJECTS;
+  }
+  nextId = Math.max(...projects.map(p => p.id), 0) + 1;
+  renderAll();
+}
+
+async function persistProjects() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Saving...';
+  try {
+    await fetch('/api/save-projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projects })
+    });
+    showToast();
+  } catch(e) {
+    alert('Save failed — please try again.');
+  }
+  btn.disabled = false;
+  btn.textContent = '💾 Save Changes';
+}
+
+function getPalette(i) { return PALETTES[i % PALETTES.length]; }
+
 function renderStats() {
-  const avg = projects.length ? Math.round(projects.reduce((a, p) => a + p.pct, 0) / projects.length) : 0;
+  const avg = projects.length ? Math.round(projects.reduce((a,p) => a + p.pct, 0) / projects.length) : 0;
   const done = projects.filter(p => p.pct === 100).length;
-  const total = projects.length;
-  document.getElementById("stats-row").innerHTML = `
-    <div class="stat-chip"><div class="val">${total}</div><div class="lbl">Projects</div></div>
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-chip"><div class="val">${projects.length}</div><div class="lbl">Projects</div></div>
     <div class="stat-chip"><div class="val">${avg}%</div><div class="lbl">Avg Progress</div></div>
     <div class="stat-chip"><div class="val">${done}</div><div class="lbl">Completed</div></div>
   `;
 }
 
 function renderProjects() {
-  const list = document.getElementById("projects-list");
-  list.innerHTML = "";
+  const list = document.getElementById('projects-list');
+  list.innerHTML = '';
   projects.forEach((p, i) => {
     const pal = getPalette(i);
     const complete = p.pct >= 100;
-    const div = document.createElement("div");
-    div.className = "project-card" + (complete ? " complete" : "");
-    div.style.setProperty("--accent-color", pal.accent);
-    div.style.setProperty("--bar-start", pal.start);
-    div.style.setProperty("--bar-end", pal.end);
-    div.style.animationDelay = (i * 0.05) + "s";
+    const div = document.createElement('div');
+    div.className = 'project-card' + (complete ? ' complete' : '');
+    div.style.setProperty('--accent-color', pal.accent);
+    div.style.setProperty('--bar-start', pal.start);
+    div.style.setProperty('--bar-end', pal.end);
+    div.style.animationDelay = (i * 0.05) + 's';
     div.innerHTML = `
       <div class="card-top">
         <span class="card-num">${String(i+1).padStart(2,'0')}</span>
@@ -723,105 +581,94 @@ function renderProjects() {
     `;
     list.appendChild(div);
   });
-
-  // Animate bars in after a tiny delay
   requestAnimationFrame(() => {
     setTimeout(() => {
-      document.querySelectorAll(".bar-fill").forEach(el => {
-        el.style.width = el.dataset.target + "%";
+      document.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.width = el.dataset.target + '%';
       });
     }, 100);
   });
 }
 
-function renderAll() {
-  renderStats();
-  renderProjects();
-}
+function renderAll() { renderStats(); renderProjects(); }
 
-// ─── ADMIN ────────────────────────────────────────────────────────────────
 function toggleAdmin() {
-  const sec = document.getElementById("admin-section");
-  sec.classList.toggle("visible");
+  document.getElementById('admin-section').classList.toggle('visible');
 }
 
 function doLogin() {
-  const pw = document.getElementById("pw-input").value;
+  const pw = document.getElementById('pw-input').value;
   if (pw === ADMIN_PASSWORD) {
     loggedIn = true;
-    document.getElementById("login-form-wrap").style.display = "none";
-    const content = document.getElementById("admin-content");
-    content.classList.add("visible");
+    document.getElementById('login-form-wrap').style.display = 'none';
+    document.getElementById('admin-content').classList.add('visible');
     renderAdminRows();
   } else {
-    const err = document.getElementById("login-error");
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 2500);
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 2500);
   }
 }
 
 function logout() {
   loggedIn = false;
-  document.getElementById("login-form-wrap").style.display = "block";
-  document.getElementById("admin-content").classList.remove("visible");
-  document.getElementById("pw-input").value = "";
+  document.getElementById('login-form-wrap').style.display = 'block';
+  document.getElementById('admin-content').classList.remove('visible');
+  document.getElementById('pw-input').value = '';
 }
 
 function renderAdminRows() {
-  const container = document.getElementById("admin-rows");
-  container.innerHTML = "";
+  const container = document.getElementById('admin-rows');
+  container.innerHTML = '';
   projects.forEach((p, i) => {
-    const row = document.createElement("div");
-    row.className = "admin-row";
+    const row = document.createElement('div');
+    row.className = 'admin-row';
     row.dataset.id = p.id;
     row.innerHTML = `
-      <span class="drag-handle" title="Drag to reorder">⠿</span>
       <span class="row-num">${i+1}</span>
       <input type="text" value="${p.name.replace(/"/g,'&quot;')}" placeholder="Project name">
-      <input type="number" value="${p.pct}" min="0" max="100" placeholder="0">
+      <input type="number" value="${p.pct}" min="0" max="100">
       <span class="pct-label">%</span>
-      <button class="btn-delete" onclick="deleteRow(${p.id})" title="Delete">✕</button>
+      <button class="btn-delete" onclick="deleteRow(${p.id})">✕</button>
     `;
     container.appendChild(row);
   });
 }
 
 function addProject() {
-  projects.push({ id: nextId++, name: "New Project", pct: 0 });
+  projects.push({ id: nextId++, name: 'New Project', pct: 0 });
   renderAdminRows();
 }
 
 function deleteRow(id) {
-  if (!confirm("Delete this project?")) return;
+  if (!confirm('Delete this project?')) return;
   projects = projects.filter(p => p.id !== id);
   renderAdminRows();
   renderAll();
 }
 
 function saveAll() {
-  const rows = document.querySelectorAll(".admin-row");
+  const rows = document.querySelectorAll('.admin-row');
   const updated = [];
   rows.forEach(row => {
     const id = parseInt(row.dataset.id);
-    const name = row.querySelector("input[type='text']").value.trim() || "Unnamed";
-    const pct = Math.max(0, Math.min(100, parseInt(row.querySelector("input[type='number']").value) || 0));
+    const name = row.querySelector('input[type="text"]').value.trim() || 'Unnamed';
+    const pct = Math.max(0, Math.min(100, parseInt(row.querySelector('input[type="number"]').value) || 0));
     updated.push({ id, name, pct });
   });
   projects = updated;
-  saveProjects(projects);
   renderAll();
   renderAdminRows();
-  showToast();
+  persistProjects();
 }
 
 function showToast() {
-  const t = document.getElementById("toast");
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2800);
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────
-renderAll();
+loadProjects();
 </script>
 </body>
 </html>
