@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,7 +63,7 @@
     z-index: 2;
     max-width: 900px;
     margin: 0 auto;
-    padding: 40px 24px 80px;
+    padding: 40px 24px 100px;
   }
   header { text-align: center; margin-bottom: 56px; }
   .ant-icon {
@@ -145,7 +146,7 @@
     padding: 18px 22px;
     position: relative;
     overflow: hidden;
-    transition: border-color 0.3s, transform 0.2s;
+    transition: border-color 0.3s, transform 0.2s, box-shadow 0.3s;
     animation: cardIn 0.5s ease both;
   }
   .project-card:hover { transform: translateX(4px); border-color: rgba(0,245,255,0.3); }
@@ -221,6 +222,46 @@
     margin-left: 8px;
   }
   .project-card.complete .complete-badge { display: inline; }
+
+  /* Website link footer on each card */
+  .card-link {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .card-link .link-domain {
+    color: var(--accent-color, var(--neon-cyan));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .card-link .visit-text {
+    color: var(--text-dim);
+    flex-shrink: 0;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+  .project-card.clickable { cursor: pointer; }
+  .project-card.clickable:hover {
+    border-color: var(--accent-color, var(--neon-cyan));
+    box-shadow: 0 0 18px rgba(0,245,255,0.1);
+  }
+  .project-card.clickable:hover .visit-text {
+    color: var(--accent-color, var(--neon-cyan));
+    text-shadow: 0 0 8px var(--accent-color, var(--neon-cyan));
+  }
+  .project-card.clickable:focus {
+    outline: none;
+    border-color: var(--accent-color, var(--neon-cyan));
+    box-shadow: 0 0 18px var(--accent-color, var(--neon-cyan));
+  }
+
   .loading-wrap {
     text-align: center;
     padding: 60px 0;
@@ -238,35 +279,79 @@
     margin: 0 auto 16px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .admin-toggle-wrap { text-align: center; margin-top: 56px; }
-  .admin-toggle-btn {
-    background: transparent;
-    border: 1px solid var(--text-dim);
-    color: var(--text-dim);
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 10px 24px;
-    border-radius: 4px;
+
+  /* Floating ant admin button - bottom left */
+  .ant-admin-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-size: 24px;
+    line-height: 1;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
     transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0,245,255,0.1);
   }
-  .admin-toggle-btn:hover {
+  .ant-admin-btn:hover {
     border-color: var(--neon-cyan);
-    color: var(--neon-cyan);
-    text-shadow: var(--glow-cyan);
-    box-shadow: 0 0 12px rgba(0,245,255,0.15);
+    box-shadow: 0 0 20px rgba(0,245,255,0.35);
+    transform: scale(1.1) translateY(-2px);
   }
-  #admin-section { display: none; margin-top: 20px; }
-  #admin-section.visible { display: block; }
-  .admin-panel {
+
+  /* Admin modal overlay */
+  .admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(2,4,10,0.85);
+    backdrop-filter: blur(6px);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .admin-overlay.visible { display: flex; }
+  .admin-modal {
     background: var(--surface);
     border: 1px solid var(--neon-pink);
     border-radius: 12px;
     padding: 28px;
-    box-shadow: 0 0 30px rgba(255,0,144,0.1);
+    box-shadow: 0 0 40px rgba(255,0,144,0.15);
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalIn 0.3s ease;
   }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
+
   .admin-header {
     font-family: 'Orbitron', monospace;
     font-size: 13px;
@@ -275,6 +360,7 @@
     text-shadow: var(--glow-pink);
     text-transform: uppercase;
     margin-bottom: 24px;
+    padding-right: 40px;
   }
   #login-form {
     display: flex;
@@ -314,7 +400,13 @@
   .login-error { color: var(--neon-orange); font-size: 12px; text-align: center; display: none; }
   #admin-content { display: none; }
   #admin-content.visible { display: block; }
-  .admin-toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .admin-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .admin-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
   .btn-add {
     background: transparent;
     border: 1px solid var(--neon-green);
@@ -360,19 +452,43 @@
     margin-left: auto;
   }
   .btn-logout:hover { border-color: var(--neon-orange); color: var(--neon-orange); }
+
   .admin-rows { display: flex; flex-direction: column; gap: 10px; }
   .admin-row {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px 14px;
     animation: cardIn 0.3s ease both;
+    transition: border-color 0.2s, opacity 0.2s;
   }
+  .admin-row.dragging { opacity: 0.4; }
+  .admin-row.drag-over { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,245,255,0.2); }
+  .admin-row-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .admin-row-url {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 34px;
+  }
+  .drag-handle {
+    cursor: grab;
+    color: var(--text-dim);
+    font-size: 16px;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  .drag-handle:hover { color: var(--neon-cyan); }
+  .drag-handle:active { cursor: grabbing; }
   .admin-row .row-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text-dim); min-width: 20px; }
-  .admin-row input[type="text"] {
+  .admin-row input[type="text"], .admin-row input[type="url"] {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 5px;
@@ -385,7 +501,8 @@
     transition: border-color 0.2s;
     min-width: 0;
   }
-  .admin-row input[type="text"]:focus { border-color: var(--neon-cyan); }
+  .admin-row input[type="text"]:focus, .admin-row input[type="url"]:focus { border-color: var(--neon-cyan); }
+  .admin-row .url-input:focus { border-color: var(--neon-green); }
   .admin-row input[type="number"] {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -404,6 +521,7 @@
   .admin-row input[type="number"]:focus { border-color: var(--neon-cyan); }
   .admin-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   .pct-label { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--text-dim); }
+  .url-icon { font-size: 13px; color: var(--text-dim); flex-shrink: 0; }
   .btn-delete {
     background: transparent;
     border: 1px solid rgba(255,0,144,0.3);
@@ -414,8 +532,10 @@
     font-size: 13px;
     transition: all 0.2s;
     line-height: 1;
+    flex-shrink: 0;
   }
   .btn-delete:hover { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255,0,144,0.08); }
+
   .save-toast {
     position: fixed;
     bottom: 30px;
@@ -434,6 +554,10 @@
     z-index: 999;
   }
   .save-toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .admin-row-url { padding-left: 0; }
+  }
 </style>
 </head>
 <body>
@@ -451,51 +575,56 @@
       LOADING PROJECTS...
     </div>
   </div>
-  <div class="admin-toggle-wrap">
-    <button class="admin-toggle-btn" onclick="toggleAdmin()">⚙ Admin Access</button>
-  </div>
-  <div id="admin-section">
-    <div class="admin-panel">
-      <div class="admin-header">🔐 Admin Panel</div>
-      <div id="login-form-wrap">
-        <div id="login-form">
-          <input type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
-          <button class="btn-primary" onclick="doLogin()">Access Control Room</button>
-          <p class="login-error" id="login-error">❌ Incorrect password</p>
-        </div>
+</div>
+
+<!-- Floating admin access button -->
+<button class="ant-admin-btn" onclick="toggleAdmin()" title="Admin Access">🐜</button>
+
+<!-- Admin modal -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-modal">
+    <button class="modal-close" onclick="toggleAdmin()">✕</button>
+    <div class="admin-header">🔐 Admin Panel</div>
+    <div id="login-form-wrap">
+      <div id="login-form">
+        <input type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="btn-primary" onclick="doLogin()">Access Control Room</button>
+        <p class="login-error" id="login-error">❌ Incorrect password</p>
       </div>
-      <div id="admin-content">
-        <div class="admin-toolbar">
-          <button class="btn-add" onclick="addProject()">+ Add Project</button>
-          <button class="btn-save" id="save-btn" onclick="saveAll()">💾 Save Changes</button>
-          <button class="btn-logout" onclick="logout()">Logout</button>
-        </div>
-        <div class="admin-rows" id="admin-rows"></div>
+    </div>
+    <div id="admin-content">
+      <div class="admin-toolbar">
+        <button class="btn-add" onclick="addProject()">+ Add Project</button>
+        <button class="btn-save" id="save-btn" onclick="saveAll()">💾 Save Changes</button>
+        <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
+      <p class="admin-hint">💡 Drag the ⠿ handle to reorder projects. Add a website URL (optional) to make a project's card clickable on the live page. Projects at 100% automatically appear first on the live page, regardless of this order.</p>
+      <div class="admin-rows" id="admin-rows"></div>
     </div>
   </div>
 </div>
+
 <div class="save-toast" id="toast">Changes Saved!</div>
 
 <script>
 const DEFAULT_PROJECTS = [
-  { id: 1,  name: "Arcade Games 1–4 Possibly More – Shuffle", pct: 80 },
-  { id: 2,  name: "Comic Book", pct: 70 },
-  { id: 3,  name: "Financial App", pct: 2 },
-  { id: 4,  name: "3D App (Patent Acquired)", pct: 70 },
-  { id: 5,  name: "Trait Builder", pct: 100 },
-  { id: 6,  name: "Real Life Card Game", pct: 10 },
-  { id: 7,  name: "V3 Collection", pct: 50 },
-  { id: 8,  name: "V2 Alpha Swarm Collection", pct: 80 },
-  { id: 9,  name: "Animation", pct: 50 },
-  { id: 10, name: "V2 Image Hosting In House", pct: 65 },
-  { id: 11, name: "Strategy Token (Built In House)", pct: 1 },
-  { id: 12, name: "Giphi Chibby Ants", pct: 78 },
-  { id: 13, name: "Battles V2", pct: 65 },
-  { id: 14, name: "Rebel Virtual World", pct: 1 }
+  { id: 1,  name: "Arcade Games 1–4 Possibly More – Shuffle", pct: 80, url: "" },
+  { id: 2,  name: "Comic Book", pct: 70, url: "" },
+  { id: 3,  name: "Financial App", pct: 2, url: "" },
+  { id: 4,  name: "3D App (Patent Acquired)", pct: 70, url: "" },
+  { id: 5,  name: "Trait Builder", pct: 100, url: "" },
+  { id: 6,  name: "Real Life Card Game", pct: 10, url: "" },
+  { id: 7,  name: "V3 Collection", pct: 50, url: "" },
+  { id: 8,  name: "V2 Alpha Swarm Collection", pct: 80, url: "" },
+  { id: 9,  name: "Animation", pct: 50, url: "" },
+  { id: 10, name: "V2 Image Hosting In House", pct: 65, url: "" },
+  { id: 11, name: "Strategy Token (Built In House)", pct: 1, url: "" },
+  { id: 12, name: "Giphi Chibby Ants", pct: 78, url: "" },
+  { id: 13, name: "Battles V2", pct: 65, url: "" },
+  { id: 14, name: "Rebel Virtual World", pct: 1, url: "" }
 ];
 
-const ADMIN_PASSWORD = "Mc#03048215891600";
+const ADMIN_PASSWORD = "rebelants2024";
 const PALETTES = [
   { start: "#00f5ff", end: "#bf00ff", accent: "#00f5ff" },
   { start: "#ff0090", end: "#ff6b00", accent: "#ff0090" },
@@ -510,6 +639,7 @@ const PALETTES = [
 let projects = [];
 let nextId = 100;
 let loggedIn = false;
+let draggedIndex = null;
 
 async function loadProjects() {
   try {
@@ -523,6 +653,8 @@ async function loadProjects() {
   } catch (e) {
     projects = DEFAULT_PROJECTS;
   }
+  // make sure every project has a url field (for older saved data)
+  projects.forEach(p => { if (typeof p.url === 'undefined') p.url = ''; });
   nextId = Math.max(...projects.map(p => p.id), 0) + 1;
   renderAll();
 }
@@ -547,6 +679,33 @@ async function persistProjects() {
 
 function getPalette(i) { return PALETTES[i % PALETTES.length]; }
 
+function normalizeUrl(u) {
+  if (!u) return '';
+  u = u.trim();
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  return u;
+}
+
+function displayDomain(u) {
+  try {
+    const host = new URL(normalizeUrl(u)).hostname;
+    return host.replace(/^www\./, '');
+  } catch {
+    return u;
+  }
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+// Completed (100%) projects float to the top for the public view
+function getDisplayProjects() {
+  const completed = projects.filter(p => p.pct >= 100);
+  const rest = projects.filter(p => p.pct < 100);
+  return [...completed, ...rest];
+}
+
 function renderStats() {
   const avg = projects.length ? Math.round(projects.reduce((a,p) => a + p.pct, 0) / projects.length) : 0;
   const done = projects.filter(p => p.pct === 100).length;
@@ -560,11 +719,13 @@ function renderStats() {
 function renderProjects() {
   const list = document.getElementById('projects-list');
   list.innerHTML = '';
-  projects.forEach((p, i) => {
+  const display = getDisplayProjects();
+  display.forEach((p, i) => {
     const pal = getPalette(i);
     const complete = p.pct >= 100;
+    const hasUrl = p.url && p.url.trim().length > 0;
     const div = document.createElement('div');
-    div.className = 'project-card' + (complete ? ' complete' : '');
+    div.className = 'project-card' + (complete ? ' complete' : '') + (hasUrl ? ' clickable' : '');
     div.style.setProperty('--accent-color', pal.accent);
     div.style.setProperty('--bar-start', pal.start);
     div.style.setProperty('--bar-end', pal.end);
@@ -578,7 +739,19 @@ function renderProjects() {
       <div class="bar-track">
         <div class="bar-fill" style="width:0%" data-target="${Math.min(p.pct,100)}"></div>
       </div>
+      ${hasUrl ? `<div class="card-link"><span class="link-domain">🔗 ${displayDomain(p.url)}</span><span class="visit-text">Click here to visit →</span></div>` : ''}
     `;
+    if (hasUrl) {
+      div.setAttribute('role', 'link');
+      div.setAttribute('tabindex', '0');
+      div.addEventListener('click', () => window.open(normalizeUrl(p.url), '_blank', 'noopener'));
+      div.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.open(normalizeUrl(p.url), '_blank', 'noopener');
+        }
+      });
+    }
     list.appendChild(div);
   });
   requestAnimationFrame(() => {
@@ -593,7 +766,7 @@ function renderProjects() {
 function renderAll() { renderStats(); renderProjects(); }
 
 function toggleAdmin() {
-  document.getElementById('admin-section').classList.toggle('visible');
+  document.getElementById('admin-overlay').classList.toggle('visible');
 }
 
 function doLogin() {
@@ -617,6 +790,19 @@ function logout() {
   document.getElementById('pw-input').value = '';
 }
 
+// Pull current values out of the admin form inputs back into the projects array
+function syncFromDOM() {
+  const rows = document.querySelectorAll('.admin-row');
+  rows.forEach(row => {
+    const id = parseInt(row.dataset.id);
+    const proj = projects.find(p => p.id === id);
+    if (!proj) return;
+    proj.name = row.querySelector('.name-input').value.trim() || 'Unnamed';
+    proj.pct = Math.max(0, Math.min(100, parseInt(row.querySelector('.pct-input').value) || 0));
+    proj.url = row.querySelector('.url-input').value.trim();
+  });
+}
+
 function renderAdminRows() {
   const container = document.getElementById('admin-rows');
   container.innerHTML = '';
@@ -625,38 +811,71 @@ function renderAdminRows() {
     row.className = 'admin-row';
     row.dataset.id = p.id;
     row.innerHTML = `
-      <span class="row-num">${i+1}</span>
-      <input type="text" value="${p.name.replace(/"/g,'&quot;')}" placeholder="Project name">
-      <input type="number" value="${p.pct}" min="0" max="100">
-      <span class="pct-label">%</span>
-      <button class="btn-delete" onclick="deleteRow(${p.id})">✕</button>
+      <div class="admin-row-main">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <span class="row-num">${i+1}</span>
+        <input type="text" class="name-input" value="${esc(p.name)}" placeholder="Project name">
+        <input type="number" class="pct-input" value="${p.pct}" min="0" max="100">
+        <span class="pct-label">%</span>
+        <button class="btn-delete" onclick="deleteRow(${p.id})" title="Delete">✕</button>
+      </div>
+      <div class="admin-row-url">
+        <span class="url-icon">🔗</span>
+        <input type="text" class="url-input" value="${esc(p.url || '')}" placeholder="https://example.com (optional)">
+      </div>
     `;
     container.appendChild(row);
+
+    // Drag & drop — only the handle initiates the drag
+    const handle = row.querySelector('.drag-handle');
+    handle.draggable = true;
+
+    handle.addEventListener('dragstart', (e) => {
+      draggedIndex = i;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    handle.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      draggedIndex = null;
+    });
+
+    row.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (draggedIndex !== null && draggedIndex !== i) {
+        row.classList.add('drag-over');
+      }
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', (e) => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (draggedIndex === null || draggedIndex === i) return;
+      syncFromDOM();
+      const [moved] = projects.splice(draggedIndex, 1);
+      projects.splice(i, 0, moved);
+      draggedIndex = null;
+      renderAdminRows();
+    });
   });
 }
 
 function addProject() {
-  projects.push({ id: nextId++, name: 'New Project', pct: 0 });
+  syncFromDOM();
+  projects.push({ id: nextId++, name: 'New Project', pct: 0, url: '' });
   renderAdminRows();
 }
 
 function deleteRow(id) {
   if (!confirm('Delete this project?')) return;
+  syncFromDOM();
   projects = projects.filter(p => p.id !== id);
   renderAdminRows();
   renderAll();
 }
 
 function saveAll() {
-  const rows = document.querySelectorAll('.admin-row');
-  const updated = [];
-  rows.forEach(row => {
-    const id = parseInt(row.dataset.id);
-    const name = row.querySelector('input[type="text"]').value.trim() || 'Unnamed';
-    const pct = Math.max(0, Math.min(100, parseInt(row.querySelector('input[type="number"]').value) || 0));
-    updated.push({ id, name, pct });
-  });
-  projects = updated;
+  syncFromDOM();
   renderAll();
   renderAdminRows();
   persistProjects();
