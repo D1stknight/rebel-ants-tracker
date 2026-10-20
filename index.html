@@ -623,7 +623,8 @@ const DEFAULT_PROJECTS = [
   { id: 14, name: "Rebel Virtual World", pct: 1, url: "" }
 ];
 
-const ADMIN_PASSWORD = "rebelants2024";
+// Admin password lives in Vercel (env var ADMIN_PASSWORD) and is checked on the server.
+let adminPw = '';
 const PALETTES = [
   { start: "#00f5ff", end: "#bf00ff", accent: "#00f5ff" },
   { start: "#ff0090", end: "#ff6b00", accent: "#ff0090" },
@@ -663,12 +664,19 @@ async function persistProjects() {
   btn.disabled = true;
   btn.textContent = '⏳ Saving...';
   try {
-    await fetch('/api/save-projects', {
+    const res = await fetch('/api/save-projects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPw },
       body: JSON.stringify({ projects })
     });
-    showToast();
+    if (res.status === 401) {
+      alert('Your admin session is no longer valid (password may have changed). Please log in again.');
+      logout();
+    } else if (!res.ok) {
+      alert('Save failed — please try again.');
+    } else {
+      showToast();
+    }
   } catch(e) {
     alert('Save failed — please try again.');
   }
@@ -768,9 +776,21 @@ function toggleAdmin() {
   document.getElementById('admin-overlay').classList.toggle('visible');
 }
 
-function doLogin() {
+async function doLogin() {
   const pw = document.getElementById('pw-input').value;
-  if (pw === ADMIN_PASSWORD) {
+  let ok = false;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    ok = res.ok;
+  } catch (e) {
+    ok = false;
+  }
+  if (ok) {
+    adminPw = pw;
     loggedIn = true;
     document.getElementById('login-form-wrap').style.display = 'none';
     document.getElementById('admin-content').classList.add('visible');
@@ -784,6 +804,7 @@ function doLogin() {
 
 function logout() {
   loggedIn = false;
+  adminPw = '';
   document.getElementById('login-form-wrap').style.display = 'block';
   document.getElementById('admin-content').classList.remove('visible');
   document.getElementById('pw-input').value = '';
