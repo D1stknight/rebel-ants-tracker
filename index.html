@@ -313,11 +313,16 @@
     background: rgba(2,4,10,0.85);
     backdrop-filter: blur(6px);
     z-index: 300;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 20px;
+    /* the overlay itself scrolls — most reliable on iPhone/iPad */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   .admin-overlay.visible { display: flex; }
+  body.modal-open { overflow: hidden; }
   .admin-modal {
     background: var(--surface);
     border: 1px solid var(--neon-pink);
@@ -326,10 +331,13 @@
     box-shadow: 0 0 40px rgba(255,0,144,0.15);
     max-width: 640px;
     width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
+    margin: auto;
     position: relative;
     animation: modalIn 0.3s ease;
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
   }
   @keyframes modalIn {
     from { opacity: 0; transform: scale(0.96) translateY(10px); }
@@ -477,6 +485,22 @@
     gap: 8px;
     padding-left: 34px;
   }
+  .move-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+  .btn-move {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 4px;
+    width: 28px;
+    height: 18px;
+    font-size: 9px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s;
+  }
+  .btn-move:hover:not(:disabled) { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+  .btn-move:disabled { opacity: 0.25; cursor: default; }
   .drag-handle {
     cursor: grab;
     color: var(--text-dim);
@@ -554,8 +578,46 @@
   }
   .save-toast.show { transform: translateX(-50%) translateY(0); }
 
-  @media (max-width: 480px) {
+  .admin-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface);
+    padding: 10px 0;
+  }
+
+  /* Touch devices: 16px inputs stop iPhone from zooming in on tap,
+     bigger tap targets, and drag handle swapped for ▲▼ buttons */
+  @media (pointer: coarse) {
+    #login-form input,
+    .admin-row input[type="text"],
+    .admin-row input[type="url"],
+    .admin-row input[type="number"] { font-size: 16px; padding: 10px 12px; }
+    .drag-handle { display: none; }
+    .btn-move { width: 36px; height: 24px; font-size: 11px; }
+    .btn-delete { padding: 10px 13px; }
+    .project-card:hover { transform: none; }
+  }
+
+  @media (max-width: 600px) {
+    .admin-overlay { padding: 0; }
+    .admin-modal {
+      border-radius: 0;
+      border: none;
+      border-top: 2px solid var(--neon-pink);
+      min-height: 100%;
+      padding: 20px 14px 40px;
+    }
+    .admin-toolbar button { flex: 1 1 auto; padding: 11px 12px; }
+    .btn-logout { margin-left: 0; }
+    .admin-row { padding: 10px; }
+    .admin-row-main { gap: 8px; }
     .admin-row-url { padding-left: 0; }
+    .admin-row .row-num { min-width: 14px; }
+    .ant-admin-btn { width: 46px; height: 46px; font-size: 21px; bottom: 14px; left: 14px; }
+    .container { padding: 28px 14px 90px; }
+    .project-card { padding: 16px 16px 16px 18px; }
+    .card-link { font-size: 9px; }
   }
 </style>
 </head>
@@ -585,11 +647,13 @@
     <button class="modal-close" onclick="toggleAdmin()">✕</button>
     <div class="admin-header">🔐 Admin Panel</div>
     <div id="login-form-wrap">
-      <div id="login-form">
-        <input type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
-        <button class="btn-primary" onclick="doLogin()">Access Control Room</button>
+      <form id="login-form" action="/admin-login" method="post" onsubmit="doLogin(event)" autocomplete="on">
+        <!-- hidden username so iPhone/iCloud Keychain offers to save the password -->
+        <input type="text" name="username" id="admin-user" class="sr-only" autocomplete="username" value="admin" tabindex="-1" aria-hidden="true">
+        <input type="password" name="password" id="pw-input" placeholder="Enter admin password" autocomplete="current-password" required>
+        <button type="submit" class="btn-primary">Access Control Room</button>
         <p class="login-error" id="login-error">❌ Incorrect password</p>
-      </div>
+      </form>
     </div>
     <div id="admin-content">
       <div class="admin-toolbar">
@@ -597,7 +661,7 @@
         <button class="btn-save" id="save-btn" onclick="saveAll()">💾 Save Changes</button>
         <button class="btn-logout" onclick="logout()">Logout</button>
       </div>
-      <p class="admin-hint">💡 Drag the ⠿ handle to reorder projects. Add a website URL (optional) to make a project's card clickable on the live page. Projects at 100% automatically appear first on the live page, regardless of this order.</p>
+      <p class="admin-hint">💡 Use ▲▼ (or drag ⠿ on a computer) to reorder projects. Add a website URL (optional) to make a project's card clickable on the live page. Projects at 100% automatically appear first on the live page, regardless of this order.</p>
       <div class="admin-rows" id="admin-rows"></div>
     </div>
   </div>
@@ -773,10 +837,13 @@ function renderProjects() {
 function renderAll() { renderStats(); renderProjects(); }
 
 function toggleAdmin() {
-  document.getElementById('admin-overlay').classList.toggle('visible');
+  const open = document.getElementById('admin-overlay').classList.toggle('visible');
+  // stop the page behind from scrolling while the admin panel is open
+  document.body.classList.toggle('modal-open', open);
 }
 
-async function doLogin() {
+async function doLogin(e) {
+  if (e) e.preventDefault();
   const pw = document.getElementById('pw-input').value;
   let ok = false;
   try {
@@ -833,15 +900,19 @@ function renderAdminRows() {
     row.innerHTML = `
       <div class="admin-row-main">
         <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <div class="move-btns">
+          <button type="button" class="btn-move" onclick="moveRow(${i}, -1)" title="Move up" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>▲</button>
+          <button type="button" class="btn-move" onclick="moveRow(${i}, 1)" title="Move down" aria-label="Move down" ${i === projects.length - 1 ? 'disabled' : ''}>▼</button>
+        </div>
         <span class="row-num">${i+1}</span>
         <input type="text" class="name-input" value="${esc(p.name)}" placeholder="Project name">
-        <input type="number" class="pct-input" value="${p.pct}" min="0" max="100">
-        <span class="pct-label">%</span>
-        <button class="btn-delete" onclick="deleteRow(${p.id})" title="Delete">✕</button>
+        <button type="button" class="btn-delete" onclick="deleteRow(${p.id})" title="Delete">✕</button>
       </div>
       <div class="admin-row-url">
         <span class="url-icon">🔗</span>
-        <input type="text" class="url-input" value="${esc(p.url || '')}" placeholder="https://example.com (optional)">
+        <input type="text" class="url-input" value="${esc(p.url || '')}" placeholder="website (optional)" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input type="number" class="pct-input" value="${p.pct}" min="0" max="100" inputmode="numeric">
+        <span class="pct-label">%</span>
       </div>
     `;
     container.appendChild(row);
@@ -878,6 +949,25 @@ function renderAdminRows() {
       renderAdminRows();
     });
   });
+}
+
+// ▲▼ reorder (works on phones/tablets where drag-and-drop doesn't)
+function moveRow(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= projects.length) return;
+  syncFromDOM();
+  [projects[i], projects[j]] = [projects[j], projects[i]];
+  const scroller = document.getElementById('admin-overlay');
+  const keep = scroller.scrollTop;
+  renderAdminRows();
+  scroller.scrollTop = keep;
+  // brief highlight on the moved row
+  const moved = document.querySelectorAll('.admin-row')[j];
+  if (moved) {
+    moved.style.animation = 'none';
+    moved.classList.add('drag-over');
+    setTimeout(() => moved.classList.remove('drag-over'), 600);
+  }
 }
 
 function addProject() {
