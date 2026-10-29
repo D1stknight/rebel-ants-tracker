@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { checkPassword, checkTicket, json } from './_auth.js';
+import { checkTicket, json } from './_auth.js';
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
@@ -14,21 +14,11 @@ export default async function handler(req) {
     return json({ ok: false, error: 'Invalid JSON' }, 400);
   }
 
-  // Saves come from the Rebel Console with a one-time admin ticket. The old password
-  // still works until the public admin button is removed.
-  if (body && typeof body.ticket === 'string') {
-    const t = await checkTicket(body.ticket);
-    if (t === 'not-configured') return json({ ok: false, error: 'REBEL_APP_KEY is not set in Vercel' }, 503);
-    if (t !== 'ok') return json({ ok: false, error: 'Unauthorized' }, 401);
-  } else {
-    const auth = checkPassword(req.headers.get('x-admin-password') || '');
-    if (auth === 'not-configured') {
-      return json({ ok: false, error: 'ADMIN_PASSWORD is not set in Vercel' }, 500);
-    }
-    if (!auth) {
-      return json({ ok: false, error: 'Unauthorized' }, 401);
-    }
-  }
+  // Saves come only from the Rebel Console (economy.rebelants.io/admin/tracker) with a one-time
+  // admin ticket. The old public password login is gone.
+  const t = await checkTicket(body && body.ticket);
+  if (t === 'not-configured') return json({ ok: false, error: 'REBEL_APP_KEY is not set in Vercel' }, 503);
+  if (t !== 'ok') return json({ ok: false, error: 'Unauthorized' }, 401);
   if (!Array.isArray(body.projects) || body.projects.length > 60) {
     return json({ ok: false, error: 'projects must be a list of at most 60' }, 400);
   }

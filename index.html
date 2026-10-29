@@ -638,36 +638,7 @@
   </div>
 </div>
 
-<!-- Floating admin access button -->
-<button class="ant-admin-btn" onclick="toggleAdmin()" title="Admin Access">🐜</button>
-
-<!-- Admin modal -->
-<div class="admin-overlay" id="admin-overlay">
-  <div class="admin-modal">
-    <button class="modal-close" onclick="toggleAdmin()">✕</button>
-    <div class="admin-header">🔐 Admin Panel</div>
-    <div id="login-form-wrap">
-      <form id="login-form" action="/admin-login" method="post" onsubmit="doLogin(event)" autocomplete="on">
-        <!-- hidden username so iPhone/iCloud Keychain offers to save the password -->
-        <input type="text" name="username" id="admin-user" class="sr-only" autocomplete="username" value="admin" tabindex="-1" aria-hidden="true">
-        <input type="password" name="password" id="pw-input" placeholder="Enter admin password" autocomplete="current-password" required>
-        <button type="submit" class="btn-primary">Access Control Room</button>
-        <p class="login-error" id="login-error">❌ Incorrect password</p>
-      </form>
-    </div>
-    <div id="admin-content">
-      <div class="admin-toolbar">
-        <button class="btn-add" onclick="addProject()">+ Add Project</button>
-        <button class="btn-save" id="save-btn" onclick="saveAll()">💾 Save Changes</button>
-        <button class="btn-logout" onclick="logout()">Logout</button>
-      </div>
-      <p class="admin-hint">💡 Use ▲▼ (or drag ⠿ on a computer) to reorder projects. Add a website URL (optional) to make a project's card clickable on the live page. Projects at 100% automatically appear first on the live page, regardless of this order.</p>
-      <div class="admin-rows" id="admin-rows"></div>
-    </div>
-  </div>
-</div>
-
-<div class="save-toast" id="toast">Changes Saved!</div>
+<!-- The project list is edited in the Rebel Console (economy.rebelants.io/admin/tracker). -->
 
 <script>
 const DEFAULT_PROJECTS = [
@@ -687,8 +658,6 @@ const DEFAULT_PROJECTS = [
   { id: 14, name: "Rebel Virtual World", pct: 1, url: "" }
 ];
 
-// Admin password lives in Vercel (env var ADMIN_PASSWORD) and is checked on the server.
-let adminPw = '';
 const PALETTES = [
   { start: "#00f5ff", end: "#bf00ff", accent: "#00f5ff" },
   { start: "#ff0090", end: "#ff6b00", accent: "#ff0090" },
@@ -702,8 +671,6 @@ const PALETTES = [
 
 let projects = [];
 let nextId = 100;
-let loggedIn = false;
-let draggedIndex = null;
 
 async function loadProjects() {
   try {
@@ -723,30 +690,6 @@ async function loadProjects() {
   renderAll();
 }
 
-async function persistProjects() {
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Saving...';
-  try {
-    const res = await fetch('/api/save-projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPw },
-      body: JSON.stringify({ projects })
-    });
-    if (res.status === 401) {
-      alert('Your admin session is no longer valid (password may have changed). Please log in again.');
-      logout();
-    } else if (!res.ok) {
-      alert('Save failed — please try again.');
-    } else {
-      showToast();
-    }
-  } catch(e) {
-    alert('Save failed — please try again.');
-  }
-  btn.disabled = false;
-  btn.textContent = '💾 Save Changes';
-}
 
 function getPalette(i) { return PALETTES[i % PALETTES.length]; }
 
@@ -835,167 +778,6 @@ function renderProjects() {
 }
 
 function renderAll() { renderStats(); renderProjects(); }
-
-function toggleAdmin() {
-  const open = document.getElementById('admin-overlay').classList.toggle('visible');
-  // stop the page behind from scrolling while the admin panel is open
-  document.body.classList.toggle('modal-open', open);
-}
-
-async function doLogin(e) {
-  if (e) e.preventDefault();
-  const pw = document.getElementById('pw-input').value;
-  let ok = false;
-  try {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw })
-    });
-    ok = res.ok;
-  } catch (e) {
-    ok = false;
-  }
-  if (ok) {
-    adminPw = pw;
-    loggedIn = true;
-    document.getElementById('login-form-wrap').style.display = 'none';
-    document.getElementById('admin-content').classList.add('visible');
-    renderAdminRows();
-  } else {
-    const err = document.getElementById('login-error');
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 2500);
-  }
-}
-
-function logout() {
-  loggedIn = false;
-  adminPw = '';
-  document.getElementById('login-form-wrap').style.display = 'block';
-  document.getElementById('admin-content').classList.remove('visible');
-  document.getElementById('pw-input').value = '';
-}
-
-// Pull current values out of the admin form inputs back into the projects array
-function syncFromDOM() {
-  const rows = document.querySelectorAll('.admin-row');
-  rows.forEach(row => {
-    const id = parseInt(row.dataset.id);
-    const proj = projects.find(p => p.id === id);
-    if (!proj) return;
-    proj.name = row.querySelector('.name-input').value.trim() || 'Unnamed';
-    proj.pct = Math.max(0, Math.min(100, parseInt(row.querySelector('.pct-input').value) || 0));
-    proj.url = row.querySelector('.url-input').value.trim();
-  });
-}
-
-function renderAdminRows() {
-  const container = document.getElementById('admin-rows');
-  container.innerHTML = '';
-  projects.forEach((p, i) => {
-    const row = document.createElement('div');
-    row.className = 'admin-row';
-    row.dataset.id = p.id;
-    row.innerHTML = `
-      <div class="admin-row-main">
-        <span class="drag-handle" title="Drag to reorder">⠿</span>
-        <div class="move-btns">
-          <button type="button" class="btn-move" onclick="moveRow(${i}, -1)" title="Move up" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>▲</button>
-          <button type="button" class="btn-move" onclick="moveRow(${i}, 1)" title="Move down" aria-label="Move down" ${i === projects.length - 1 ? 'disabled' : ''}>▼</button>
-        </div>
-        <span class="row-num">${i+1}</span>
-        <input type="text" class="name-input" value="${esc(p.name)}" placeholder="Project name">
-        <button type="button" class="btn-delete" onclick="deleteRow(${p.id})" title="Delete">✕</button>
-      </div>
-      <div class="admin-row-url">
-        <span class="url-icon">🔗</span>
-        <input type="text" class="url-input" value="${esc(p.url || '')}" placeholder="website (optional)" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <input type="number" class="pct-input" value="${p.pct}" min="0" max="100" inputmode="numeric">
-        <span class="pct-label">%</span>
-      </div>
-    `;
-    container.appendChild(row);
-
-    // Drag & drop — only the handle initiates the drag
-    const handle = row.querySelector('.drag-handle');
-    handle.draggable = true;
-
-    handle.addEventListener('dragstart', (e) => {
-      draggedIndex = i;
-      row.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    handle.addEventListener('dragend', () => {
-      row.classList.remove('dragging');
-      draggedIndex = null;
-    });
-
-    row.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      if (draggedIndex !== null && draggedIndex !== i) {
-        row.classList.add('drag-over');
-      }
-    });
-    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
-    row.addEventListener('drop', (e) => {
-      e.preventDefault();
-      row.classList.remove('drag-over');
-      if (draggedIndex === null || draggedIndex === i) return;
-      syncFromDOM();
-      const [moved] = projects.splice(draggedIndex, 1);
-      projects.splice(i, 0, moved);
-      draggedIndex = null;
-      renderAdminRows();
-    });
-  });
-}
-
-// ▲▼ reorder (works on phones/tablets where drag-and-drop doesn't)
-function moveRow(i, dir) {
-  const j = i + dir;
-  if (j < 0 || j >= projects.length) return;
-  syncFromDOM();
-  [projects[i], projects[j]] = [projects[j], projects[i]];
-  const scroller = document.getElementById('admin-overlay');
-  const keep = scroller.scrollTop;
-  renderAdminRows();
-  scroller.scrollTop = keep;
-  // brief highlight on the moved row
-  const moved = document.querySelectorAll('.admin-row')[j];
-  if (moved) {
-    moved.style.animation = 'none';
-    moved.classList.add('drag-over');
-    setTimeout(() => moved.classList.remove('drag-over'), 600);
-  }
-}
-
-function addProject() {
-  syncFromDOM();
-  projects.push({ id: nextId++, name: 'New Project', pct: 0, url: '' });
-  renderAdminRows();
-}
-
-function deleteRow(id) {
-  if (!confirm('Delete this project?')) return;
-  syncFromDOM();
-  projects = projects.filter(p => p.id !== id);
-  renderAdminRows();
-  renderAll();
-}
-
-function saveAll() {
-  syncFromDOM();
-  renderAll();
-  renderAdminRows();
-  persistProjects();
-}
-
-function showToast() {
-  const t = document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
 
 loadProjects();
 </script>
