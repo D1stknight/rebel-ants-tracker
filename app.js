@@ -88,7 +88,8 @@ function renderSummary() {
   $('#overall-sub').textContent = `across ${all.length} projects`;
   $('#counts').innerHTML = ['live', 'building', 'planned'].map((s) =>
     `<span class="count ${STATUS[s].cls}"><span class="dot"></span><span class="label">${n(s)} ${STATUS[s].label.toLowerCase()}</span></span>`).join('');
-  const d = new Date(state.updated);
+  const u = String(state.updated || ''), dm = u.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const d = dm ? new Date(+dm[1], dm[2] - 1, +dm[3]) : new Date(u);
   $('#updated').textContent = isNaN(d) ? '' : 'Updated ' + new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(d);
   for (const ring of document.querySelectorAll('.ring')) {
     ring.style.setProperty('--pct', avg / 100);
