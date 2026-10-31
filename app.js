@@ -29,7 +29,7 @@ const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } 
 function shape(p, c) {
   const pct = Math.max(0, Math.min(100, Math.round(Number(p.pct) || 0)));
   let url = safeUrl(p.url);
-  if (c.url && (!url || host(url) === host(c.url))) url = safeUrl(c.url);
+  if (c.url && (!url || host(url) === host(c.url) || (c.oldHosts || []).includes(host(url)))) url = safeUrl(c.url);
   const self = !!c.self || host(url) === location.hostname || host(url) === 'tracker.rebelants.io';
   const status = c.status || (url || pct >= 100 ? 'live' : pct < 15 ? 'planned' : 'building');
   const cat = c.cat || { live: 'collection', building: 'game', planned: 'media' }[status];
@@ -45,7 +45,7 @@ function merge(list) {
   const out = list.map((p) => {
     const c = CONTENT[p.id];
     // Only use the extra public text while the console name still matches it
-    const ok = c && (!c.match || norm(p.name).startsWith(norm(c.match)));
+    const ok = c && (!c.match || [].concat(c.match).some((m) => norm(p.name).startsWith(norm(m))));
     return shape(p, ok ? c : {});
   });
   const hosts = new Set(out.map((p) => host(p.url)).filter(Boolean));

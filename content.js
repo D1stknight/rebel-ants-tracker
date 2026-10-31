@@ -6,6 +6,8 @@
 //   title    – shorter public name, used only while the console name still starts with `match`
 //              (rename it in the console and your new name wins)
 //   url      – link used when the console has none, or a more exact page on the same site
+//   oldHosts – old addresses of the site; a console link to one of these is swapped for `url`
+//   match    – may also be a list of names
 //   status   – 'live' | 'building' | 'planned'  (optional; otherwise worked out from the link and %)
 //   self     – this tracker itself (no Open button)
 //   icon/cat – app icon glyph and colour family
@@ -146,9 +148,11 @@ export const CONTENT = {
     done: ['Collection live on OpenSea'], next: [],
   },
   24: {
-    match: 'Rebel Ants After Dark', title: 'After Dark', icon: 'moon', cat: 'game',
+    // Was "After Dark" at afterdark.rebelants.io; renamed to Underground
+    match: ['Rebel Ants After Dark', 'Rebel Ants Underground', 'Underground'], title: 'Rebel Ants Underground', icon: 'moon', cat: 'game',
+    url: 'https://underground.rebelants.io', oldHosts: ['afterdark.rebelants.io'],
     tagline: 'The Rebel Ants after-hours experience.',
-    done: ['Live at afterdark.rebelants.io'], next: [],
+    done: ['Live at underground.rebelants.io'], next: [],
   },
   25: {
     match: 'Rebel Autonomous Asset Protocol', title: 'RAAP', icon: 'cpu', cat: 'tech',
