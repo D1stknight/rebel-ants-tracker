@@ -1,785 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rebel Ants — Project Tracker</title>
-<meta property="og:title" content="Rebel Ants — Project Tracker" />
-<meta property="og:description" content="Track all active Rebel Ants projects in real time." />
-<meta property="og:image" content="https://tracker.rebelants.io/og-image.png" />
-<meta property="og:url" content="https://tracker.rebelants.io" />
-<meta name="twitter:card" content="summary_large_image" />
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #050810;
-    --surface: #0b1120;
-    --card: #0f1a2e;
-    --border: #1a2a4a;
-    --neon-cyan: #00f5ff;
-    --neon-pink: #ff0090;
-    --neon-green: #39ff14;
-    --neon-orange: #ff6b00;
-    --neon-purple: #bf00ff;
-    --neon-yellow: #ffe600;
-    --text: #c8d8f0;
-    --text-dim: #4a6080;
-    --glow-cyan: 0 0 8px #00f5ff, 0 0 20px #00f5ff55, 0 0 40px #00f5ff22;
-    --glow-pink: 0 0 8px #ff0090, 0 0 20px #ff009055;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
-  }
-  .container {
-    position: relative;
-    z-index: 2;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 24px 100px;
-  }
-  header { text-align: center; margin-bottom: 56px; }
-  .ant-icon {
-    font-size: 52px;
-    display: block;
-    filter: drop-shadow(0 0 12px var(--neon-cyan));
-    animation: float 3s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-  h1 {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(28px, 6vw, 52px);
-    font-weight: 900;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-pink) 50%, var(--neon-purple) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 20px rgba(0,245,255,0.4));
-    line-height: 1.1;
-  }
-  .subtitle {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    letter-spacing: 6px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-top: 10px;
-  }
-  .header-line {
-    width: 200px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-pink), transparent);
-    margin: 20px auto 0;
-    animation: linePulse 3s ease-in-out infinite;
-  }
-  @keyframes linePulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
-  .stats-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .stat-chip {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 20px;
-    text-align: center;
-    flex: 1;
-    min-width: 120px;
-  }
-  .stat-chip .val {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--neon-cyan);
-    text-shadow: var(--glow-cyan);
-  }
-  .stat-chip .lbl {
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-  #projects-list { display: flex; flex-direction: column; gap: 14px; }
-  .project-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px 22px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    animation: cardIn 0.5s ease both;
-  }
-  .project-card:hover { transform: translateX(4px); border-color: rgba(0,245,255,0.3); }
-  .project-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--accent-color, var(--neon-cyan));
-    box-shadow: 0 0 8px var(--accent-color, var(--neon-cyan));
-  }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-  .card-top {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .card-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text-dim); min-width: 24px; }
-  .card-name { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; flex: 1; color: #e0eeff; }
-  .card-pct {
-    font-family: 'Orbitron', monospace;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent-color, var(--neon-cyan));
-    text-shadow: 0 0 10px var(--accent-color, var(--neon-cyan));
-    min-width: 56px;
-    text-align: right;
-  }
-  .bar-track {
-    height: 8px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--bar-start, #00f5ff), var(--bar-end, #bf00ff));
-    box-shadow: 0 0 10px var(--accent-color, var(--neon-cyan));
-    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-  }
-  .bar-fill::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -60%;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: shimmer 2.5s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0% { left: -60%; }
-    100% { left: 150%; }
-  }
-  .project-card.complete .bar-fill { animation: completePulse 2s ease-in-out infinite; }
-  @keyframes completePulse {
-    0%, 100% { box-shadow: 0 0 8px var(--neon-green); }
-    50% { box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green); }
-  }
-  .complete-badge {
-    display: none;
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--neon-green);
-    text-shadow: 0 0 8px var(--neon-green);
-    margin-left: 8px;
-  }
-  .project-card.complete .complete-badge { display: inline; }
-
-  /* Website link footer on each card */
-  .card-link {
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-  }
-  .card-link .link-domain {
-    color: var(--accent-color, var(--neon-cyan));
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .card-link .visit-text {
-    color: var(--text-dim);
-    flex-shrink: 0;
-    transition: color 0.2s, text-shadow 0.2s;
-  }
-  .project-card.clickable { cursor: pointer; }
-  .project-card.clickable:hover {
-    border-color: var(--accent-color, var(--neon-cyan));
-    box-shadow: 0 0 18px rgba(0,245,255,0.1);
-  }
-  .project-card.clickable:hover .visit-text {
-    color: var(--accent-color, var(--neon-cyan));
-    text-shadow: 0 0 8px var(--accent-color, var(--neon-cyan));
-  }
-  .project-card.clickable:focus {
-    outline: none;
-    border-color: var(--accent-color, var(--neon-cyan));
-    box-shadow: 0 0 18px var(--accent-color, var(--neon-cyan));
-  }
-
-  .loading-wrap {
-    text-align: center;
-    padding: 60px 0;
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    letter-spacing: 4px;
-    color: var(--text-dim);
-  }
-  .loading-wrap .spinner {
-    width: 32px; height: 32px;
-    border: 2px solid var(--border);
-    border-top-color: var(--neon-cyan);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Floating ant admin button - bottom left */
-  .ant-admin-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    font-size: 24px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 150;
-    transition: all 0.3s;
-    box-shadow: 0 0 10px rgba(0,245,255,0.1);
-  }
-  .ant-admin-btn:hover {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0,245,255,0.35);
-    transform: scale(1.1) translateY(-2px);
-  }
-
-  /* Admin modal overlay */
-  .admin-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(2,4,10,0.85);
-    backdrop-filter: blur(6px);
-    z-index: 300;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 20px;
-    /* the overlay itself scrolls — most reliable on iPhone/iPad */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-  .admin-overlay.visible { display: flex; }
-  body.modal-open { overflow: hidden; }
-  .admin-modal {
-    background: var(--surface);
-    border: 1px solid var(--neon-pink);
-    border-radius: 12px;
-    padding: 28px;
-    box-shadow: 0 0 40px rgba(255,0,144,0.15);
-    max-width: 640px;
-    width: 100%;
-    margin: auto;
-    position: relative;
-    animation: modalIn 0.3s ease;
-  }
-  .sr-only {
-    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-  }
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.96) translateY(10px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-  }
-  .modal-close:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
-
-  .admin-header {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    letter-spacing: 4px;
-    color: var(--neon-pink);
-    text-shadow: var(--glow-pink);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    padding-right: 40px;
-  }
-  #login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    max-width: 320px;
-    margin: 0 auto;
-  }
-  #login-form input {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    font-size: 14px;
-    padding: 12px 16px;
-    outline: none;
-    transition: border-color 0.3s;
-    width: 100%;
-  }
-  #login-form input:focus { border-color: var(--neon-pink); }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 13px 24px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 0 16px rgba(255,0,144,0.3);
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(255,0,144,0.5); }
-  .login-error { color: var(--neon-orange); font-size: 12px; text-align: center; display: none; }
-  #admin-content { display: none; }
-  #admin-content.visible { display: block; }
-  .admin-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-  .admin-hint {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    line-height: 1.5;
-  }
-  .btn-add {
-    background: transparent;
-    border: 1px solid var(--neon-green);
-    color: var(--neon-green);
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 9px 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-  }
-  .btn-add:hover { background: rgba(57,255,20,0.1); box-shadow: 0 0 12px rgba(57,255,20,0.2); }
-  .btn-save {
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-    border: none;
-    color: var(--bg);
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 9px 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-  }
-  .btn-save:hover { filter: brightness(1.2); box-shadow: 0 0 16px rgba(0,245,255,0.3); }
-  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-logout {
-    background: transparent;
-    border: 1px solid var(--text-dim);
-    color: var(--text-dim);
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 9px 18px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    margin-left: auto;
-  }
-  .btn-logout:hover { border-color: var(--neon-orange); color: var(--neon-orange); }
-
-  .admin-rows { display: flex; flex-direction: column; gap: 10px; }
-  .admin-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    animation: cardIn 0.3s ease both;
-    transition: border-color 0.2s, opacity 0.2s;
-  }
-  .admin-row.dragging { opacity: 0.4; }
-  .admin-row.drag-over { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,245,255,0.2); }
-  .admin-row-main {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .admin-row-url {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding-left: 34px;
-  }
-  .move-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-  .btn-move {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 4px;
-    width: 28px;
-    height: 18px;
-    font-size: 9px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0;
-    transition: all 0.2s;
-  }
-  .btn-move:hover:not(:disabled) { border-color: var(--neon-cyan); color: var(--neon-cyan); }
-  .btn-move:disabled { opacity: 0.25; cursor: default; }
-  .drag-handle {
-    cursor: grab;
-    color: var(--text-dim);
-    font-size: 16px;
-    user-select: none;
-    transition: color 0.2s;
-  }
-  .drag-handle:hover { color: var(--neon-cyan); }
-  .drag-handle:active { cursor: grabbing; }
-  .admin-row .row-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--text-dim); min-width: 20px; }
-  .admin-row input[type="text"], .admin-row input[type="url"] {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    font-size: 13px;
-    padding: 7px 11px;
-    flex: 1;
-    outline: none;
-    transition: border-color 0.2s;
-    min-width: 0;
-  }
-  .admin-row input[type="text"]:focus, .admin-row input[type="url"]:focus { border-color: var(--neon-cyan); }
-  .admin-row .url-input:focus { border-color: var(--neon-green); }
-  .admin-row input[type="number"] {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--neon-cyan);
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 7px 10px;
-    width: 70px;
-    outline: none;
-    text-align: center;
-    transition: border-color 0.2s;
-    -moz-appearance: textfield;
-  }
-  .admin-row input[type="number"]:focus { border-color: var(--neon-cyan); }
-  .admin-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .pct-label { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--text-dim); }
-  .url-icon { font-size: 13px; color: var(--text-dim); flex-shrink: 0; }
-  .btn-delete {
-    background: transparent;
-    border: 1px solid rgba(255,0,144,0.3);
-    color: rgba(255,0,144,0.5);
-    border-radius: 5px;
-    padding: 6px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .btn-delete:hover { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255,0,144,0.08); }
-
-  .save-toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--neon-green);
-    color: var(--bg);
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    padding: 12px 28px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    box-shadow: 0 0 20px var(--neon-green);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 999;
-  }
-  .save-toast.show { transform: translateX(-50%) translateY(0); }
-
-  .admin-toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: var(--surface);
-    padding: 10px 0;
-  }
-
-  /* Touch devices: 16px inputs stop iPhone from zooming in on tap,
-     bigger tap targets, and drag handle swapped for ▲▼ buttons */
-  @media (pointer: coarse) {
-    #login-form input,
-    .admin-row input[type="text"],
-    .admin-row input[type="url"],
-    .admin-row input[type="number"] { font-size: 16px; padding: 10px 12px; }
-    .drag-handle { display: none; }
-    .btn-move { width: 36px; height: 24px; font-size: 11px; }
-    .btn-delete { padding: 10px 13px; }
-    .project-card:hover { transform: none; }
-  }
-
-  @media (max-width: 600px) {
-    .admin-overlay { padding: 0; }
-    .admin-modal {
-      border-radius: 0;
-      border: none;
-      border-top: 2px solid var(--neon-pink);
-      min-height: 100%;
-      padding: 20px 14px 40px;
-    }
-    .admin-toolbar button { flex: 1 1 auto; padding: 11px 12px; }
-    .btn-logout { margin-left: 0; }
-    .admin-row { padding: 10px; }
-    .admin-row-main { gap: 8px; }
-    .admin-row-url { padding-left: 0; }
-    .admin-row .row-num { min-width: 14px; }
-    .ant-admin-btn { width: 46px; height: 46px; font-size: 21px; bottom: 14px; left: 14px; }
-    .container { padding: 28px 14px 90px; }
-    .project-card { padding: 16px 16px 16px 18px; }
-    .card-link { font-size: 9px; }
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140A05">
+<title>Rebel Ants Tracker</title>
+<meta name="description" content="Every Rebel Ants project in one place: what's live, what we're building, and what's coming next.">
+<meta property="og:title" content="Rebel Ants Tracker">
+<meta property="og:description" content="Every Rebel Ants project in one place: what's live, what we're building, and what's coming next.">
+<meta property="og:image" content="https://tracker.rebelants.io/og-image.jpg">
+<meta property="og:url" content="https://tracker.rebelants.io">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" as="image" href="assets/rebel-ant.webp" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&display=swap&text=The%20colony%20is%20building.">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="container">
-  <header>
-    <span class="ant-icon">🐜</span>
-    <h1>Rebel Ants</h1>
-    <p class="subtitle">Project Status Tracker</p>
-    <div class="header-line"></div>
-  </header>
-  <div class="stats-row" id="stats-row"></div>
-  <div id="projects-list">
-    <div class="loading-wrap">
-      <div class="spinner"></div>
-      LOADING PROJECTS...
-    </div>
+<div class="backdrop" aria-hidden="true"></div>
+
+<!-- The giant Rebel Ant: an image first, swapped for live 3D on capable devices -->
+<div class="stage" id="stage" aria-hidden="true">
+  <div class="ring" id="ring">
+    <svg viewBox="0 0 300 100">
+      <defs>
+        <linearGradient id="ringGrad" x1="0" x2="1">
+          <stop offset="0" stop-color="#FFE3A0"/><stop offset=".55" stop-color="#FFB257"/><stop offset="1" stop-color="#E5482B"/>
+        </linearGradient>
+        <radialGradient id="floorGrad">
+          <stop offset="0" stop-color="rgba(255,170,80,.45)"/><stop offset="1" stop-color="rgba(255,170,80,0)"/>
+        </radialGradient>
+      </defs>
+      <ellipse class="floor" cx="150" cy="50" rx="120" ry="34"/>
+      <ellipse class="track" cx="150" cy="50" rx="110" ry="28" fill="none" stroke-width="3"/>
+      <ellipse class="arc" cx="150" cy="50" rx="110" ry="28" fill="none" stroke-width="4" stroke-linecap="round" pathLength="100" transform="rotate(180 150 50)"/>
+    </svg>
+  </div>
+  <img src="assets/rebel-ant.webp" alt="" width="600" height="900" decoding="async">
+  <canvas id="ant3d"></canvas>
+  <!-- front half of the ring passes in front of the ant's feet -->
+  <div class="ring front">
+    <svg viewBox="0 0 300 100">
+      <ellipse class="track" cx="150" cy="50" rx="110" ry="28" fill="none" stroke-width="3"/>
+      <ellipse class="arc" cx="150" cy="50" rx="110" ry="28" fill="none" stroke-width="4" stroke-linecap="round" pathLength="100" transform="rotate(180 150 50)"/>
+    </svg>
   </div>
 </div>
 
-<!-- The project list is edited in the Rebel Console (economy.rebelants.io/admin/tracker). -->
+<header class="nav glass">
+  <a class="brand" href="https://rebelants.io" aria-label="Rebel Ants home">
+    <img src="assets/emblem.webp" alt="" width="38" height="38">
+    <b>Rebel Ants <span>Tracker</span></b>
+  </a>
+  <a class="nav-link" href="https://rebelants.io" target="_blank" rel="noopener">rebelants.io <svg class="i" data-icon="arrow-up-right"></svg></a>
+</header>
 
-<script>
-const DEFAULT_PROJECTS = [
-  { id: 1,  name: "Arcade Games 1–4 Possibly More – Shuffle", pct: 80, url: "" },
-  { id: 2,  name: "Comic Book", pct: 70, url: "" },
-  { id: 3,  name: "Financial App", pct: 2, url: "" },
-  { id: 4,  name: "3D App (Patent Acquired)", pct: 70, url: "" },
-  { id: 5,  name: "Trait Builder", pct: 100, url: "" },
-  { id: 6,  name: "Real Life Card Game", pct: 10, url: "" },
-  { id: 7,  name: "V3 Collection", pct: 50, url: "" },
-  { id: 8,  name: "V2 Alpha Swarm Collection", pct: 80, url: "" },
-  { id: 9,  name: "Animation", pct: 50, url: "" },
-  { id: 10, name: "V2 Image Hosting In House", pct: 65, url: "" },
-  { id: 11, name: "Strategy Token (Built In House)", pct: 1, url: "" },
-  { id: 12, name: "Giphi Chibby Ants", pct: 78, url: "" },
-  { id: 13, name: "Battles V2", pct: 65, url: "" },
-  { id: 14, name: "Rebel Virtual World", pct: 1, url: "" }
-];
+<main>
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-copy">
+      <h1 id="title">The colony is building.</h1>
+      <p class="lede"><span class="long">Every Rebel Ants project in one place: what's live, what we're building, and what's coming next.</span><span class="short">Every Rebel Ants project, in one place.</span></p>
+    </div>
+    <div class="summary glass" id="summary" aria-live="polite">
+      <div class="big" id="overall">–<small>%</small></div>
+      <div class="what"><strong>Overall progress</strong><br><span id="overall-sub">across all projects</span></div>
+      <div class="counts" id="counts"></div>
+      <div class="updated" id="updated"></div>
+    </div>
+    <a class="scroll-cue" href="#projects" aria-label="Jump to projects"></a>
+  </section>
 
-const PALETTES = [
-  { start: "#00f5ff", end: "#bf00ff", accent: "#00f5ff" },
-  { start: "#ff0090", end: "#ff6b00", accent: "#ff0090" },
-  { start: "#39ff14", end: "#00f5ff", accent: "#39ff14" },
-  { start: "#ffe600", end: "#ff6b00", accent: "#ffe600" },
-  { start: "#bf00ff", end: "#ff0090", accent: "#bf00ff" },
-  { start: "#00f5ff", end: "#39ff14", accent: "#00f5ff" },
-  { start: "#ff6b00", end: "#ffe600", accent: "#ff6b00" },
-  { start: "#ff0090", end: "#bf00ff", accent: "#ff0090" },
-];
-
-let projects = [];
-let nextId = 100;
-
-async function loadProjects() {
-  try {
-    const res = await fetch('/api/get-projects');
-    const data = await res.json();
-    if (data.projects && data.projects.length > 0) {
-      projects = data.projects;
-    } else {
-      projects = DEFAULT_PROJECTS;
-    }
-  } catch (e) {
-    projects = DEFAULT_PROJECTS;
-  }
-  // make sure every project has a url field (for older saved data)
-  projects.forEach(p => { if (typeof p.url === 'undefined') p.url = ''; });
-  nextId = Math.max(...projects.map(p => p.id), 0) + 1;
-  renderAll();
-}
-
-
-function getPalette(i) { return PALETTES[i % PALETTES.length]; }
-
-function normalizeUrl(u) {
-  if (!u) return '';
-  u = u.trim();
-  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-  return u;
-}
-
-function displayDomain(u) {
-  try {
-    const host = new URL(normalizeUrl(u)).hostname;
-    return host.replace(/^www\./, '');
-  } catch {
-    return u;
-  }
-}
-
-function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-}
-
-// Completed (100%) projects float to the top for the public view
-function getDisplayProjects() {
-  const completed = projects.filter(p => p.pct >= 100);
-  const rest = projects.filter(p => p.pct < 100);
-  return [...completed, ...rest];
-}
-
-function renderStats() {
-  const avg = projects.length ? Math.round(projects.reduce((a,p) => a + p.pct, 0) / projects.length) : 0;
-  const done = projects.filter(p => p.pct === 100).length;
-  document.getElementById('stats-row').innerHTML = `
-    <div class="stat-chip"><div class="val">${projects.length}</div><div class="lbl">Projects</div></div>
-    <div class="stat-chip"><div class="val">${avg}%</div><div class="lbl">Avg Progress</div></div>
-    <div class="stat-chip"><div class="val">${done}</div><div class="lbl">Completed</div></div>
-  `;
-}
-
-function renderProjects() {
-  const list = document.getElementById('projects-list');
-  list.innerHTML = '';
-  const display = getDisplayProjects();
-  display.forEach((p, i) => {
-    const pal = getPalette(i);
-    const complete = p.pct >= 100;
-    const hasUrl = p.url && p.url.trim().length > 0;
-    const div = document.createElement('div');
-    div.className = 'project-card' + (complete ? ' complete' : '') + (hasUrl ? ' clickable' : '');
-    div.style.setProperty('--accent-color', pal.accent);
-    div.style.setProperty('--bar-start', pal.start);
-    div.style.setProperty('--bar-end', pal.end);
-    div.style.animationDelay = (i * 0.05) + 's';
-    div.innerHTML = `
-      <div class="card-top">
-        <span class="card-num">${String(i+1).padStart(2,'0')}</span>
-        <span class="card-name">${p.name}<span class="complete-badge">✓ DONE</span></span>
-        <span class="card-pct">${p.pct}%</span>
+  <section class="projects" id="projects" aria-label="Projects">
+    <div class="filters-wrap">
+      <div class="filters glass" id="filters" role="group" aria-label="Show projects">
+        <span class="thumb" id="thumb" aria-hidden="true"></span>
+        <button type="button" data-f="all" aria-pressed="true">All <span class="n"></span></button>
+        <button type="button" data-f="live" aria-pressed="false">Live <span class="n"></span></button>
+        <button type="button" data-f="building" aria-pressed="false">Building <span class="n"></span></button>
+        <button type="button" data-f="planned" aria-pressed="false">Planned <span class="n"></span></button>
       </div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:0%" data-target="${Math.min(p.pct,100)}"></div>
-      </div>
-      ${hasUrl ? `<div class="card-link"><span class="link-domain">🔗 ${displayDomain(p.url)}</span><span class="visit-text">Click here to visit →</span></div>` : ''}
-    `;
-    if (hasUrl) {
-      div.setAttribute('role', 'link');
-      div.setAttribute('tabindex', '0');
-      div.addEventListener('click', () => window.open(normalizeUrl(p.url), '_blank', 'noopener'));
-      div.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          window.open(normalizeUrl(p.url), '_blank', 'noopener');
-        }
-      });
-    }
-    list.appendChild(div);
-  });
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      document.querySelectorAll('.bar-fill').forEach(el => {
-        el.style.width = el.dataset.target + '%';
-      });
-    }, 100);
-  });
-}
+    </div>
+    <ul class="grid" id="grid"></ul>
+  </section>
+</main>
 
-function renderAll() { renderStats(); renderProjects(); }
+<footer class="foot-site">
+  <div class="glass">
+    <div class="who">
+      <img src="assets/emblem.webp" alt="" width="44" height="44" loading="lazy">
+      <p><b>Rebel Ants</b>Independent tech, games and media. Representing the little guys since 2021.</p>
+    </div>
+    <nav aria-label="Rebel Ants links">
+      <a class="nav-link" href="https://rebelants.io" target="_blank" rel="noopener">Website</a>
+      <a class="nav-link" href="https://discord.gg/QhzEHfRqN6" target="_blank" rel="noopener">Discord</a>
+      <a class="nav-link" href="https://www.youtube.com/@rebelants" target="_blank" rel="noopener">YouTube</a>
+    </nav>
+  </div>
+</footer>
 
-loadProjects();
-</script>
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-panel glass" id="sheet-panel"></div>
+</dialog>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>

@@ -50,5 +50,13 @@ export default async function handler(req) {
   if (!kvRes.ok) {
     return json({ ok: false, error: 'Database save failed' }, 502);
   }
+
+  // Remember when the list changed, for the "Updated" date on the public page.
+  await fetch(`${url}/set/rebel_projects_updated`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'text/plain' },
+    body: new Date().toISOString()
+  }).catch(() => {});
+
   return json({ ok: true });
 }
