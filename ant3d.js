@@ -1,4 +1,4 @@
-// The giant Rebel Ant: spins as you scroll, idles in the hero, and does a move now and then.
+// Ant-Thony, giant: spins as you scroll, idles in the hero, and does a move now and then.
 // Loaded only on devices that can run it smoothly; otherwise the still image stays.
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
@@ -24,7 +24,7 @@ export async function startAnt(canvas, stage) {
 
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await loader.loadAsync('assets/rebel-ant.glb');
+  const gltf = await loader.loadAsync('assets/antthony.glb');
   const ant = gltf.scene;
   scene.add(ant);
 

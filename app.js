@@ -134,7 +134,7 @@ filters.addEventListener('click', (e) => {
   renderFilters(true);
   const go = () => renderGrid(false);
   if (document.startViewTransition && !reduced) document.startViewTransition(go); else go();
-  ant?.play('front_kick');
+  ant?.play('roundhouse_kick');
   const top = $('#projects').getBoundingClientRect().top + scrollY - 70;
   if (scrollY > top + 40) scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
 });
@@ -208,7 +208,7 @@ function openSheet(p, fromHash = false) {
   }));
   panel.querySelector('.close').onclick = closeSheet;
   if (!fromHash) history.replaceState(null, '', '#p-' + p.id);
-  ant?.play('cartwheel');
+  ant?.play('spin_flip_kick');
 }
 function closeSheet() {
   if (!sheet.open) return;
@@ -273,7 +273,7 @@ function onScroll() {
     const p = Math.max(0, Math.min(1, scrollY / (h * 0.8)));
     stage.style.setProperty('--p', p.toFixed(3));
     ant?.setScroll(scrollY, p);
-    if (!kicked && p > 0.45) { kicked = true; ant?.play('flip_kick'); }
+    if (!kicked && p > 0.45) { kicked = true; ant?.play('hurricane_kick'); }
   });
 }
 addEventListener('scroll', onScroll, { passive: true });
